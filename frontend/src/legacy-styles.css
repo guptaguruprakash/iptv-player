@@ -249,11 +249,36 @@
     background: #000;
     position: relative;
   }
+  #screen-player.player-stretch-layout {
+    background: #000;
+  }
+  #screen-player.player-stretch-layout > div {
+    height: 100%;
+  }
+  #screen-player.player-stretch-layout .player-video-area {
+    flex: 1;
+    aspect-ratio: auto;
+    height: 100%;
+  }
+  #screen-player.player-stretch-layout .player-info-bar,
+  #screen-player.player-stretch-layout .player-progress,
+  #screen-player.player-stretch-layout .player-controls-main,
+  #screen-player.player-stretch-layout .player-next-list {
+    display: none;
+  }
+  #screen-player.player-stretch-layout .player-back {
+    top: 14px;
+    right: 14px;
+  }
   .player-video-area {
     width: 100%; aspect-ratio: 16/9;
     background: #000; position: relative;
     display: flex; align-items: center; justify-content: center;
     overflow: hidden;
+  }
+  .player-video-area.stretch-mode {
+    box-shadow: inset 0 0 0 3px var(--accent);
+    background: linear-gradient(135deg, rgba(230,57,70,0.16), #000 56%);
   }
   .player-video-bg {
     position: absolute; inset: 0;
@@ -267,6 +292,129 @@
     font-family: var(--font-display); font-size: 11px; font-weight: 700;
     padding: 3px 10px; border-radius: 5px; letter-spacing: 1px;
     display: flex; align-items: center; gap: 5px;
+  }
+  .player-fit-indicator {
+    position: absolute;
+    top: 14px;
+    right: 58px;
+    min-width: 44px;
+    text-align: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.62);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    border: 0.5px solid rgba(255,255,255,0.2);
+    display: none;
+    z-index: 4;
+  }
+  body.android-device.landscape-mode .player-fit-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .player-fit-indicator.is-active {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .player-zoom-controls {
+    position: absolute;
+    right: 14px;
+    top: 58px;
+    display: none;
+    gap: 8px;
+    z-index: 4;
+  }
+  body.android-device.landscape-mode .player-zoom-controls {
+    display: flex;
+  }
+
+  .player-mode-controls {
+    position: absolute;
+    right: 200px;
+   
+    bottom: 30px;
+    display: flex;
+    gap: 8px;
+    z-index: 6;
+    flex-wrap: wrap;
+    max-width: calc(100vw - 28px);
+  }
+
+  .player-mode-controls .player-fit-btn {
+    min-width: 54px;
+    height: 38px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+
+  #screen-player.is-fullscreen .player-mode-controls {
+    right: 20px;
+    bottom: 20px;
+  }
+
+  .player-fullscreen-controls {
+    position: absolute;
+    left: 50%;
+    bottom: calc(16px + var(--safe-bottom));
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.58);
+    border: 0.5px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 6;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: calc(100vw - 24px);
+  }
+
+  #screen-player.is-fullscreen .player-fullscreen-controls {
+    display: flex;
+  }
+
+  #screen-player:not(.is-fullscreen) .player-fullscreen-controls {
+    display: none;
+  }
+
+  .player-zoom-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(255,255,255,0.24);
+    background: rgba(0,0,0,0.58);
+    color: #fff;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .player-fit-btn {
+    width: 54px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .player-fit-btn.is-active {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .player-zoom-btn:active {
+    transform: scale(0.92);
+    background: rgba(255,255,255,0.12);
   }
   .player-live-dot { width: 6px; height: 6px; background: #fff; border-radius: 50%; animation: pulse 1s infinite; }
   .player-back {

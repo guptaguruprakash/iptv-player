@@ -1,15 +1,21 @@
+from __future__ import annotations
+
 from typing import Any
 
 import httpx
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+app = FastAPI(title="IPTV Player API", version="2.0.0")
 
-app = FastAPI(title="IPTV Player API", version="1.0.0")
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class PlaylistLoadRequest(BaseModel):
@@ -18,17 +24,15 @@ class PlaylistLoadRequest(BaseModel):
 
 def parse_m3u_playlist(content: str) -> list[dict[str, Any]]:
     channels: list[dict[str, Any]] = []
-    lines = [line.strip() for line in content.splitlines()]
-
     current: dict[str, Any] | None = None
 
-    for line in lines:
+    for raw_line in content.splitlines():
+        line = raw_line.strip()
         if not line:
             continue
 
         if line.startswith("#EXTINF"):
             name = line.split(",", 1)[-1].strip() if "," in line else "Unknown Channel"
-
             group = "Other"
             logo = ""
 
@@ -47,10 +51,7 @@ def parse_m3u_playlist(content: str) -> list[dict[str, Any]]:
             }
             continue
 
-        if line.startswith("#"):
-            continue
-
-        if current is None:
+        if line.startswith("#") or current is None:
             continue
 
         current["stream_url"] = line
@@ -61,8 +62,11 @@ def parse_m3u_playlist(content: str) -> list[dict[str, Any]]:
 
 
 @app.get("/")
-def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+def root() -> dict[str, str]:
+    return {
+        "status": "ok",
+        "message": "IPTV Player API is running",
+    }
 
 
 @app.get("/api/health")
@@ -83,17 +87,11 @@ async def load_playlist(payload: PlaylistLoadRequest) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=f"Failed to fetch playlist: {exc}") from exc
 
     channels = parse_m3u_playlist(response.text)
-
     if not channels:
-        raise HTTPException(
-            status_code=422,
-            detail="No channels found. Make sure this is a valid M3U playlist.",
-        )
+        raise HTTPException(status_code=422, detail="No channels found. Make sure this is a valid M3U playlist.")
 
-    # Keep API responses reasonably sized for very large lists.
     max_channels = 1000
     trimmed = channels[:max_channels]
-
     return {
         "count": len(trimmed),
         "channels": trimmed,
